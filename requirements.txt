@@ -118,11 +118,6 @@ matplotlib==3.8.4
 matplotlib-inline==0.1.7
 mdurl==0.1.2
 mistune==3.0.2
-mkl==2024.2.0
-mkl-service==2.4.0
-mkl_fft 
-mkl_random 
-mlxtend==0.23.1
 mol2vec==0.2.2
 MolVS==0.1.1
 munch==4.0.0
@@ -216,9 +211,6 @@ tenacity==8.5.0
 tensorboard==2.17.0
 tensorboard-data-server==0.7.2
 tensorboardX==2.6.2.2
-tensorflow-cpu==2.7.4
-tensorflow-estimator==2.7.0
-tensorflow-io-gcs-filesystem==0.31.0
 termcolor==2.4.0
 terminado==0.18.1
 tf-transformers==0.1.0
