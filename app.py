@@ -296,7 +296,7 @@ if st.session_state.page == "Introduction":
     col_left, col_right = st.columns([1, 1])
 
     with col_left:
-        logo_path = r"themes\school.png"
+        logo_path = r"themes/school.png"
         if os.path.exists(logo_path):
             image = Image.open(logo_path)
             st.image(image, width=100, caption="")
