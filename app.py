@@ -10,15 +10,18 @@ import io
 import zipfile
 from tools import *  # Assuming this includes get_largest_contour, make_mask_by_contours, extract_contour_rect
 import base64
+from seg_all import seg_function_all
+import pandas as pd
+
 # 设置页面配置（必须放在最前面）
 st.set_page_config(page_title="Zebrafish AI", layout="wide")
-# F7FBFF
+
 # 自定义 CSS 设置背景颜色、导航文字样式和侧边栏收缩功能
 st.markdown(
     """
     <style>
     .main {
-        background-color: #FFFFF; /* 主页面浅蓝色 */
+        background-color: #FFFFF; /* 主页面白色 */
     }
     .stSidebar {
         background-color: #87CEEB; /* 导航栏蓝色 */
@@ -50,18 +53,27 @@ st.markdown(
         right: 10px;
         z-index: 999;
     }
+    .home-btn button {
+        font-size: 30px !important; /* 增大 Home 按钮字体大小 */
+    }
     /* 自定义按钮样式 */
     div.stButton > button {
-        background-color: #87CEEB;
-        color: white;
-        padding: 10px 20px;
-        font-size: 18px;
-        border: none;
+        background-color: white; /*##87CEEB*/
+        color: black;
+        padding: 15px 30px; /* 增大按钮内边距 */
+        font-size: 24px; /* 增大“开始分析”按钮字体大小 */
+        border: none !important; /* 强制移除边框 */
         border-radius: 5px;
         cursor: pointer;
+        text-align: center; /* 确保按钮文字居中 */
     }
     div.stButton > button:hover {
-        background-color: #6495ED;
+        background-color: white;
+    }
+    /* 确保内容居中 */
+    .centered-content {
+        text-align: center;
+        width: 100%;
     }
     </style>
     """,
@@ -75,15 +87,13 @@ ENCODER = "se_resnext50_32x4d"
 ENCODER_WEIGHTS = "imagenet"
 
 # 模型权重选项
-WEIGHTS_LIST = ["brain_area", "CCV", "CV", "CV2", "DA", "ISV", "macrovasculature", "PCV", "SIV"]
+WEIGHTS_LIST = ["brain_area", "CCV", "CV2", "DA", "ISV", "PCV", "SIV"]
 WEIGHTS_FILES = {
     "brain_area": "weights/brain_area_best_model_1024_416_cpu.pth",
     "CCV": "weights/CCV_best_model_1024_416_cpu.pth",
-    "CV": "weights/CV_best_model_1024_416_cpu.pth",
     "CV2": "weights/CV2_best_model_1024_416_cpu.pth",
     "DA": "weights/DA_best_model_1024_416_cpu.pth",
     "ISV": "weights/ISV_best_model_1024_416_cpu.pth",
-    "macrovasculature": "weights/macrovasculature_best_model_1024_416_cpu.pth",
     "PCV": "weights/PCV_best_model_1024_416_cpu.pth",
     "SIV": "weights/SIV_best_model_1024_416_cpu.pth"
 }
@@ -116,11 +126,10 @@ def preprocessing_img(image):
     image = np.transpose(image, (2, 0, 1)).astype(np.float32)
     return image
 
-# 分割图像（返回 NumPy 数组而不是字节数组）
-@st.cache_data(ttl=600)
+# 分割图像并计算特征
 def segment_image(_model, img, img_name="default_image"):
     with torch.no_grad():
-        name = img_name  # For logging purposes
+        name = os.path.splitext(img_name)[0]  # Remove extension for cleaner filename
         img_org = img  # Input is already a NumPy array
         x_tensor = torch.from_numpy(preprocessing_img(img_org)).to(DEVICE).unsqueeze(0)
         pr_mask = _model(x_tensor)
@@ -136,9 +145,10 @@ def segment_image(_model, img, img_name="default_image"):
         mask_rect = extract_contour_rect(pr_mask_org_size_threshold, cnt)
         img_rect = extract_contour_rect(img_masked, cnt)
         print(f"Segmented image: {name}")
+        # Calculate features using seg_function_all
+        df_features = seg_function_all(img_masked, name)  # Pass the masked image and name directly
 
-        # Return the NumPy array directly instead of encoding
-        return img_masked  # Shape: (height, width, channels)
+        return img_masked, df_features
 
 # 创建 ZIP 文件并下载（处理 NumPy 数组）
 def create_zip_of_results(images_to_process, selected_weights):
@@ -149,13 +159,34 @@ def create_zip_of_results(images_to_process, selected_weights):
             image_name = uploaded_file.name if hasattr(uploaded_file, "name") else "demo_image"
             for weight in selected_weights:
                 model = load_model(weight)
-                segmented_image = segment_image(model, image, image_name)
+                segmented_image, _ = segment_image(model, image, image_name)
                 img_buffer = io.BytesIO()
-                # Convert NumPy array to PIL Image and save as PNG
                 Image.fromarray(segmented_image).save(img_buffer, format="PNG")
                 zip_file.writestr(f"{image_name}_{weight}.png", img_buffer.getvalue())
     zip_buffer.seek(0)
     return zip_buffer
+
+# 汇总所有结果为一个总表格
+def aggregate_results(images_to_process, selected_weights):
+    all_features = []
+    for uploaded_file in images_to_process:
+        image = np.array(Image.open(uploaded_file))
+        image_name = uploaded_file.name if hasattr(uploaded_file, "name") else "demo_image"
+        for weight in selected_weights:
+            model = load_model(weight)
+            _, df_features = segment_image(model, image, image_name)
+            # Add weight and image name to the DataFrame for clarity
+            df_features['Model Weight'] = weight
+            df_features['Image Name'] = image_name
+            all_features.append(df_features)
+
+    if all_features:
+        return pd.concat(all_features, ignore_index=True)
+    return pd.DataFrame(columns=['Sample name', 'Loop number', 'Region area', 'Vessel density',
+                                'Vessel area', 'Leading bud number', 'Perimeter', 'Aspect ratio',
+                                'Solidity', 'Rectangularity', 'Compactness', 'Diameter',
+                                'Irregularity', 'Vessel_length', 'Total_interval_length', 'Model Weight',
+                                'Image Name'])
 
 # 侧边栏收缩按钮
 if 'sidebar_state' not in st.session_state:
@@ -163,7 +194,6 @@ if 'sidebar_state' not in st.session_state:
 if 'page' not in st.session_state:
     st.session_state.page = "Introduction"  # 默认页面
 
-# 导航栏
 # 导航栏
 with st.sidebar:
     st.title("导航")
@@ -189,9 +219,9 @@ if st.session_state.page == "Introduction":
         """
         <div style="text-align: center;">
             <h1>欢迎体验 Zebrafish AI</h1>
-            <p style="font-size: 18px;">
+            <p style="font-size: 25px;">
                 这是一个基于深度学习的交互式数据分析平台，专注于斑马鱼血管分割与分析<br>
-                用户可以上传图片，选择不同的模型权重进行分割，并查看分割结果<br>
+                用户可以上传图片，选择不同的模型权重进行分割和分析<br>
                 代码开源: <a href="https://github.com/chenjunzhou/Zebrafish-AI" target="_blank">https://github.com/chenjunzhou/Zebrafish-AI</a><br>
             </p>
         </div>
@@ -202,7 +232,42 @@ if st.session_state.page == "Introduction":
     if st.button("开始分析", key="start_btn", help="点击进入模型分割页面"):
         st.session_state.page = "Model Segmentation"
         st.experimental_rerun()
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown(
+        """
+        <style>
+        div.stButton > button:hover {
+            background-color: white;
+            border: none;
+        }
+        /* 增大“开始分析”按钮字体并去除边框 */
+        #start_btn > button {
+            font-size: 24px !important; /* 增大字体 */
+            border: none !important; /* 去除边框 */
+            padding: 15px 30px; /* 增加内边距以适配大字体 */
+        }
+        /* 自定义按钮样式 */
+        div.stButton > button {
+            background-color: white; /*##87CEEB*/
+            color: black;
+            padding: 15px 30px; /* 增大按钮内边距 */
+            font-size: 24px; /* 增大按钮字体大小 */
+            border: none !important; /* 强制移除边框 */
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center; /* 确保按钮文字居中 */
+        }
+        div.stButton > button:hover {
+            background-color: white;
+        }
+        /* 确保内容居中 */
+        .centered-content {
+            text-align: center;
+            width: 100%;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
     # 底部布局：左下角校徽，右下角联系信息
     st.markdown("<hr>", unsafe_allow_html=True)
@@ -210,15 +275,19 @@ if st.session_state.page == "Introduction":
     # 添加居中图片
     image_path = r"themes/4.jpg"
     if os.path.exists(image_path):
-        # 将图片转换为 base64
         with open(image_path, "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read()).decode()
         st.markdown(
             f"""
-            <div style="display: flex; justify-content: center;">
-                <img src="data:image/jpeg;base64,{encoded_string}" width="800">
-            </div>
-            """,
+                    <div class="centered-content">
+                        <img src="data:image/jpeg;base64,{encoded_string}" width="800" style="display: block; margin: 0 auto;">
+                        <p style="font-size: 22px; margin-top: 10px; text-align: center;">
+                            <strong>Development of an Automated Morphometric Approach to Assess Vascular Outcomes</strong><br>
+                            <strong>following Exposure to Environmental Chemicals in Zebrafish</strong><br>
+                            <a href="https://doi.org/10.1289/EHP13214" target="_blank" style="font-size: 16px; text-decoration: underline; text-align: center; display: block;">https://doi.org/10.1289/EHP13214</a>
+                        </p>
+                    </div>
+                    """,
             unsafe_allow_html=True
         )
     else:
@@ -269,32 +338,41 @@ elif st.session_state.page == "Model Segmentation":
     # 处理图片（上传的图片或示例图片）
     images_to_process = []
     if uploaded_files:
-        images_to_process = uploaded_files
+        images_to_process = uploaded_files[:2]  # 仅处理前两张图片
     elif selected_demo_image != "无":
         demo_image_path = os.path.join("images", selected_demo_image)
         images_to_process = [open(demo_image_path, "rb")]
 
     if images_to_process and selected_weights:
-        for uploaded_file in images_to_process:
-            image = np.array(Image.open(uploaded_file))
-            image_name = uploaded_file.name if hasattr(uploaded_file, "name") else selected_demo_image
+        # 仅选择前两个模型权重进行展示
+        preview_weights = selected_weights[:3]  # 仅使用前两个权重
 
-            # 创建一个列布局：原始图像 + 分割结果
-            st.write(f"### 处理图片: {image_name}")
-            cols = st.columns(len(selected_weights) + 1)  # +1 for the original image
-            with cols[0]:
-                st.image(image, caption="原始图片", use_column_width=True)
+        # 第一行展示（前两张图片，前两个权重）
+        if preview_weights:
+            st.write("")
+            with st.container():
+                cols = st.columns(len(preview_weights))  # 为前3个模型权重创建一个列
+                for i, weight in enumerate(preview_weights):
+                    with cols[i]:
+                        st.write(f"#### {weight}")
+                        model = load_model(weight)
+                        image_cols = st.columns(len(images_to_process))  # 为前两张图片创建一个子列
+                        for j, uploaded_file in enumerate(images_to_process):
+                            image = np.array(Image.open(uploaded_file))
+                            image_name = uploaded_file.name if hasattr(uploaded_file, "name") else selected_demo_image
+                            segmented_image, _ = segment_image(model, image, image_name)
+                            with image_cols[j]:
+                                st.image(segmented_image, caption=f"{image_name}", use_column_width=True)
 
-            # 处理并显示每个权重的分割结果
-            for i, weight in enumerate(selected_weights):
-                model = load_model(weight)
-                segmented_image = segment_image(model, image, image_name)
-                with cols[i + 1]:
-                    st.image(segmented_image, caption=f"{weight}", use_column_width=True)
+        # 汇总所有结果并显示总表格（使用所有图片和权重）
+        if st.button("分析结果汇总"):
+            total_df = aggregate_results(images_to_process if len(images_to_process) <= 2 else images_to_process[:2], selected_weights)
+            st.write("### 分析结果汇总")
+            st.dataframe(total_df)  # 使用 st.dataframe 提供更好的表格显示
 
-        # 下载所有分割结果按钮
-        if st.button("下载所有分割结果"):
-            zip_buffer = create_zip_of_results(images_to_process, selected_weights)
+        # 下载所有分割结果按钮（使用所有图片和权重）
+        if st.button("下载所有分割图片"):
+            zip_buffer = create_zip_of_results(images_to_process if len(images_to_process) <= 2 else images_to_process[:2], selected_weights)
             st.download_button(
                 label="点击下载 ZIP 文件",
                 data=zip_buffer,
