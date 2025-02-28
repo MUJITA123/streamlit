@@ -151,7 +151,7 @@ rfc3986-validator==0.1.1
 rpds-py==0.19.1
 scikit-image==0.18.1
 scikit-learn==1.1.0
-scipy==1.13.1
+scipy==1.11.1
 seaborn==0.13.2
 semver==3.0.2
 Send2Trash==1.8.3
