@@ -166,15 +166,7 @@ pyparsing==3.1.2
 python-dateutil==2.9.0.post0
 python-json-logger==2.0.7
 pytz==2024.1
-pywin32==306
-pywinpty==2.0.13
-PyYAML==6.0.1
-pyzmq==26.0.3
-qtconsole==5.5.2
-QtPy==2.4.1
 rdflib==7.0.0
-rdkit==2024.3.6
-rdkit-pypi==2021.3.5.1
 referencing==0.35.1
 requests==2.32.3
 rfc3339-validator==0.1.4
