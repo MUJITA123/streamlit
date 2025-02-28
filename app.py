@@ -316,18 +316,18 @@ if st.session_state.page == "Introduction":
         )
 
 elif st.session_state.page == "Model Segmentation":
-    st.write("# Model Segmentation and Analysis")
+    st.write("# 模型分割和分析")
 
     # 选择模型权重
-    selected_weights = st.multiselect("Select Model Weights", WEIGHTS_LIST, default=["CCV"])
+    selected_weights = st.multiselect("选择模型权重", WEIGHTS_LIST, default=["CCV"])
 
     # 选择示例图像
     demo_images = glob.glob("images/*.bmp")
     demo_image_options = ["None"] + [os.path.basename(img) for img in demo_images]
-    selected_demo_image = st.selectbox("Select Example Image", demo_image_options, index=0)
+    selected_demo_image = st.selectbox("选择示例图片", demo_image_options, index=0)
 
     # 上传图片
-    uploaded_files = st.file_uploader("Upload Images", type=["jpg", "png", "bmp"], accept_multiple_files=True)
+    uploaded_files = st.file_uploader("上传图片", type=["jpg", "png", "bmp"], accept_multiple_files=True)
 
     # 删除结果按钮
     if st.button("删除结果"):
