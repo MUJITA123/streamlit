@@ -197,7 +197,7 @@ if 'page' not in st.session_state:
 # 导航栏
 with st.sidebar:
     st.title("导航")
-    if st.button("主页"):
+    if st.button("介绍"):
         st.session_state.page = "Introduction"
         st.experimental_rerun()
     if st.button("分析"):
@@ -316,65 +316,88 @@ if st.session_state.page == "Introduction":
         )
 
 elif st.session_state.page == "Model Segmentation":
-    st.write("# 模型分割与分析")
+    st.write("# Model Segmentation and Analysis")
 
-    # 选择模型权重（多选）
-    selected_weights = st.multiselect("选择模型权重", WEIGHTS_LIST, default=["CCV"])
+    # 选择模型权重
+    selected_weights = st.multiselect("Select Model Weights", WEIGHTS_LIST, default=["CCV"])
 
-    # 从 datasets 文件夹选择示例图片
+    # 选择示例图像
     demo_images = glob.glob("images/*.bmp")
-    demo_image_options = ["无"] + [os.path.basename(img) for img in demo_images]
-    selected_demo_image = st.selectbox("选择示例图片", demo_image_options, index=0)
+    demo_image_options = ["None"] + [os.path.basename(img) for img in demo_images]
+    selected_demo_image = st.selectbox("Select Example Image", demo_image_options, index=0)
 
-    # 上传图片（支持多张）
-    uploaded_files = st.file_uploader("上传图片", type=["jpg", "png", "bmp"], accept_multiple_files=True)
+    # 上传图片
+    uploaded_files = st.file_uploader("Upload Images", type=["jpg", "png", "bmp"], accept_multiple_files=True)
 
     # 删除结果按钮
     if st.button("删除结果"):
         st.session_state.clear()
-        st.session_state.page = "Model Segmentation"  # 保留当前页面
+        st.session_state.page = "Model Segmentation"
         st.experimental_rerun()
 
-    # 处理图片（上传的图片或示例图片）
+    # 处理图片输入
     images_to_process = []
     if uploaded_files:
-        images_to_process = uploaded_files[:2]  # 仅处理前两张图片
-    elif selected_demo_image != "无":
+        images_to_process = [(file, file.name) for file in uploaded_files]  # 处理所有上传的图片
+    elif selected_demo_image != "None":
         demo_image_path = os.path.join("images", selected_demo_image)
-        images_to_process = [open(demo_image_path, "rb")]
+        file_object = open(demo_image_path, "rb")
+        images_to_process = [(file_object, selected_demo_image)]
 
     if images_to_process and selected_weights:
-        # 仅选择前两个模型权重进行展示
-        preview_weights = selected_weights[:3]  # 仅使用前两个权重
+        # 初始化存储结构
+        all_results = {}  # 存储分割图像
+        all_features = []  # 存储所有特征数据
 
-        # 第一行展示（前两张图片，前两个权重）
-        if preview_weights:
-            st.write("")
-            with st.container():
-                cols = st.columns(len(preview_weights))  # 为前3个模型权重创建一个列
-                for i, weight in enumerate(preview_weights):
-                    with cols[i]:
-                        st.write(f"#### {weight}")
-                        model = load_model(weight)
-                        image_cols = st.columns(len(images_to_process))  # 为前两张图片创建一个子列
-                        for j, uploaded_file in enumerate(images_to_process):
-                            image = np.array(Image.open(uploaded_file))
-                            image_name = uploaded_file.name if hasattr(uploaded_file, "name") else selected_demo_image
-                            segmented_image, _ = segment_image(model, image, image_name)
-                            with image_cols[j]:
-                                st.image(segmented_image, caption=f"{image_name}", use_column_width=True)
+        # 处理所有照片和模型权重
+        for weight in selected_weights:
+            model = load_model(weight)
+            all_results[weight] = []
+            for file_obj, image_name in images_to_process:
+                image = np.array(Image.open(file_obj))
+                segmented_image, df_features = segment_image(model, image, image_name)
+                # 存储分割结果
+                all_results[weight].append((image_name, segmented_image))
+                # 添加模型权重和图片名称到特征数据
+                df_features['Model Weight'] = weight
+                df_features['Image Name'] = image_name
+                all_features.append(df_features)
 
-        # 汇总所有结果并显示总表格（使用所有图片和权重）
-        if st.button("分析结果汇总"):
-            total_df = aggregate_results(images_to_process if len(images_to_process) <= 2 else images_to_process[:2], selected_weights)
+        # 展示逻辑：仅显示第一张照片的分割结果
+        first_image_name = images_to_process[0][1]  # 第一张图片的名称
+        st.write("### 分割预览")
+        for i, weight in enumerate(selected_weights):
+            if i < 4:  # 第一行：前四个权重
+                if i == 0:
+                    cols_row1 = st.columns(4)
+                with cols_row1[i]:
+                    st.write(f"**{weight}**")
+                    for img_name, segmented_image in all_results[weight]:
+                        if img_name == first_image_name:
+                            st.image(segmented_image, caption=f"{img_name}", use_column_width=True)
+                            break
+            else:  # 第二行：后三个权重
+                if i == 4:
+                    st.write("#### ")
+                    cols_row2 = st.columns(3)
+                with cols_row2[i - 4]:
+                    st.write(f"**{weight}**")
+                    for img_name, segmented_image in all_results[weight]:
+                        if img_name == first_image_name:
+                            st.image(segmented_image, caption=f"{img_name}", use_column_width=True)
+                            break
+
+        # 汇总逻辑：生成包含所有照片的表格
+        if all_features:
+            total_df = pd.concat(all_features, ignore_index=True)
             st.write("### 分析结果汇总")
-            st.dataframe(total_df)  # 使用 st.dataframe 提供更好的表格显示
+            st.dataframe(total_df)
 
-        # 下载所有分割结果按钮（使用所有图片和权重）
-        if st.button("下载所有分割图片"):
-            zip_buffer = create_zip_of_results(images_to_process if len(images_to_process) <= 2 else images_to_process[:2], selected_weights)
+        # 下载所有分割图片
+        if st.button("下载分割图片"):
+            zip_buffer = create_zip_of_results([file_obj for file_obj, _ in images_to_process], selected_weights)
             st.download_button(
-                label="点击下载 ZIP 文件",
+                label="Download ZIP File",
                 data=zip_buffer,
                 file_name="segmented_results.zip",
                 mime="application/zip"
