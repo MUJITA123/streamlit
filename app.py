@@ -284,7 +284,7 @@ if st.session_state.page == "Introduction":
                         <p style="font-size: 22px; margin-top: 10px; text-align: center;">
                             <strong>Development of an Automated Morphometric Approach to Assess Vascular Outcomes</strong><br>
                             <strong>following Exposure to Environmental Chemicals in Zebrafish</strong><br>
-                            <a href="https://doi.org/10.1289/EHP13214" target="_blank" style="font-size: 16px; text-decoration: underline; text-align: center; display: block;">https://doi.org/10.1289/EHP13214</a>
+                            <a href="https://doi.org/10.1289/EHP13214" target="_blank" style="font-size: 16px; text-decoration: underline; text-align: center; display: block;">文章地址：https://doi.org/10.1289/EHP13214</a>
                         </p>
                     </div>
                     """,
