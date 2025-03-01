@@ -218,7 +218,7 @@ if st.session_state.page == "Introduction":
     st.markdown(
         """
         <div style="text-align: center;">
-            <h1>欢迎体验 Zebrafish AI</h1>
+            <h1>欢迎体验 VasPhenoTox</h1>
             <p style="font-size: 25px;">
                 这是一个基于深度学习的交互式数据分析平台，专注于斑马鱼血管分割与分析<br>
                 用户可以上传图片，选择不同的模型权重进行分割和分析<br>
