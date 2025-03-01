@@ -196,7 +196,7 @@ if 'page' not in st.session_state:
 
 # 导航栏
 with st.sidebar:
-    st.title("导航")
+    st.title("VasPhenoTox")
     if st.button("介绍"):
         st.session_state.page = "Introduction"
         st.experimental_rerun()
