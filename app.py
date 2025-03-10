@@ -87,14 +87,11 @@ ENCODER = "se_resnext50_32x4d"
 ENCODER_WEIGHTS = "imagenet"
 
 # 模型权重选项
-WEIGHTS_LIST = ["brain_area", "CCV", "CV2", "DA", "ISV", "PCV", "SIV"]
+WEIGHTS_LIST = ["CCV", "CVP", "ISV", "SIV"]
 WEIGHTS_FILES = {
-    "brain_area": "weights/brain_area_best_model_1024_416_cpu.pth",
     "CCV": "weights/CCV_best_model_1024_416_cpu.pth",
-    "CV2": "weights/CV2_best_model_1024_416_cpu.pth",
-    "DA": "weights/DA_best_model_1024_416_cpu.pth",
+    "CVP": "weights/CV2_best_model_1024_416_cpu.pth",
     "ISV": "weights/ISV_best_model_1024_416_cpu.pth",
-    "PCV": "weights/PCV_best_model_1024_416_cpu.pth",
     "SIV": "weights/SIV_best_model_1024_416_cpu.pth"
 }
 
