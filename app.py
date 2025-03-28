@@ -279,7 +279,9 @@ if st.session_state.page == "Introduction":
                         <p style="font-size: 22px; margin-top: 10px; text-align: center;">
                             <strong>Development of an Automated Morphometric Approach to Assess Vascular Outcomes</strong><br>
                             <strong>following Exposure to Environmental Chemicals in Zebrafish</strong><br>
-                            <a href="https://doi.org/10.1289/EHP13214" target="_blank" style="font-size: 16px; text-decoration: underline; text-align: center; display: block;">文章地址：https://doi.org/10.1289/EHP13214</a>
+                            <a href="https://doi.org/10.1289/EHP13214
+        
+        " target="_blank" style="font-size: 16px; text-decoration: underline; text-align: center; display: block;">文章地址：https://doi.org/10.1289/EHP13214</a>
                         </p>
                     </div>
                     """,
@@ -311,10 +313,10 @@ if st.session_state.page == "Introduction":
         )
 
 elif st.session_state.page == "Model Segmentation":
-    st.write("# 模型分割和分析")
+    st.write("#斑马鱼血管分析")
 
     # 选择模型权重
-    selected_weights = st.multiselect("选择模型权重", WEIGHTS_LIST, default=["CCV"])
+    selected_weights = st.multiselect("选择血管区域", WEIGHTS_LIST, default=["CCV"])
 
     # 选择示例图像
     demo_images = glob.glob("images/*.bmp")
