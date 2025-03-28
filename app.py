@@ -313,7 +313,7 @@ if st.session_state.page == "Introduction":
         )
 
 elif st.session_state.page == "Model Segmentation":
-    st.write("#斑马鱼血管分析")
+    st.write("斑马鱼血管分析")
 
     # 选择模型权重
     selected_weights = st.multiselect("选择血管区域", WEIGHTS_LIST, default=["CCV"])
