@@ -179,9 +179,14 @@ def aggregate_results(images_to_process, selected_weights):
 
     if all_features:
         return pd.concat(all_features, ignore_index=True)
-    return pd.DataFrame(columns=['Sample name', 'Loop number', 'Region area', 'Vessel density',
-                                'Vessel area', 'Leading bud number', 'Perimeter', 'Aspect ratio',
-                                'Solidity', 'Rectangularity', 'Compactness', 'Diameter',
+        #'Sample name', 'Loop number', 'Region area', 'Vessel density',
+                                #'Vessel area', 'Leading bud number', 'Perimeter', 'Aspect ratio',
+                               # 'Solidity', 'Rectangularity', 'Compactness', 'Diameter',
+                               # 'Irregularity', 'Vessel_length', 'Total_interval_length', 'Model Weight',
+                               # 'Image Name'
+    return pd.DataFrame(columns=['Sample name','Region area', 'Vessel density',
+                                'Vessel area','Perimeter',
+                                'Solidity', 'Rectangularity','Diameter',
                                 'Irregularity', 'Vessel_length', 'Total_interval_length', 'Model Weight',
                                 'Image Name'])
 
