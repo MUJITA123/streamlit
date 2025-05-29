@@ -177,8 +177,8 @@ def aggregate_results(images_to_process, selected_weights):
             df_features['Image Name'] = image_name
             all_features.append(df_features)
 
-    if all_features:
-        return pd.concat(all_features, ignore_index=True)
+    #if all_features:
+        #return pd.concat(all_features, ignore_index=True)
         #'Sample name', 'Loop number', 'Region area', 'Vessel density',
                                 #'Vessel area', 'Leading bud number', 'Perimeter', 'Aspect ratio',
                                # 'Solidity', 'Rectangularity', 'Compactness', 'Diameter',
