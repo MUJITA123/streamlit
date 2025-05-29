@@ -18,20 +18,20 @@ def seg_function_all(img, img_name="default_image"):
     # Initialize data storage
     data = {
         'Sample name': [],
-        'Loop number': [],
+        #'Loop number': [],
         'Region area': [],
         'Vessel density': [],
         'Vessel area': [],
-        'Leading bud number': [],
+        #'Leading bud number': [],
         'Perimeter': [],
-        'Aspect ratio': [],
+        #'Aspect ratio': [],
         'Solidity': [],
         'Rectangularity': [],
-        'Compactness': [],
+        #'Compactness': [],
         'Diameter':[],
         'Irregularity':[],
         'Vessel_length':[],
-        'Total_interval_length':[]
+        #'Total_interval_length':[]
     }
 
     # for img_path in img_paths:
