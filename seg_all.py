@@ -58,20 +58,20 @@ def seg_function_all(img, img_name="default_image"):
     # Store the results
     # data['Sample name'].append(os.path.basename(img))#img_path
     data['Sample name'].append(img_name)
-    data['Loop number'].append(loop_num)
+    #data['Loop number'].append(loop_num)
     data['Region area'].append(region_area)
     data['Vessel density'].append(density)
     data['Vessel area'].append(vessel_area)
-    data['Leading bud number'].append(bud_num)
+    #data['Leading bud number'].append(bud_num)
     data['Perimeter'].append(perimeter)
-    data['Aspect ratio'].append(aspect_ratio)
+    #data['Aspect ratio'].append(aspect_ratio)
     data['Solidity'].append(solidity)
     data['Rectangularity'].append(rectangularity)
-    data['Compactness'].append(compactness)
+    #data['Compactness'].append(compactness)
     data['Irregularity'].append(Irregularity_value)
     data['Diameter'].append(Diameter_value)
     data['Vessel_length'].append(vessel_length)
-    data['Total_interval_length'].append(Total_interval_length)
+    #data['Total_interval_length'].append(Total_interval_length)
 
 # Save results to Excel
     df = pd.DataFrame(data)
