@@ -1,3 +1,38 @@
+import os
+import shutil
+import subprocess
+import sysconfig
+
+
+def _clear_torch_execstack():
+    if os.environ.get("TORCH_EXECSTACK_CLEARED") == "1":
+        return
+
+    patchelf = shutil.which("patchelf")
+    if not patchelf:
+        return
+
+    for key in ("platlib", "purelib"):
+        site_packages = sysconfig.get_paths().get(key)
+        if not site_packages:
+            continue
+        libtorch_cpu = os.path.join(site_packages, "torch", "lib", "libtorch_cpu.so")
+        if os.path.exists(libtorch_cpu):
+            try:
+                subprocess.run(
+                    [patchelf, "--clear-execstack", libtorch_cpu],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    check=False,
+                )
+            except OSError:
+                pass
+            os.environ["TORCH_EXECSTACK_CLEARED"] = "1"
+            break
+
+
+_clear_torch_execstack()
+
 import streamlit as st
 import torch
 import cv2
@@ -9,6 +44,7 @@ import glob
 import io
 import zipfile
 from tools import *  # Assuming this includes get_largest_contour, make_mask_by_contours, extract_contour_rect
+
 import base64
 from seg_all import seg_function_all
 import pandas as pd
