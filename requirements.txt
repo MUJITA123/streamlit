@@ -1,5 +1,5 @@
 pretrainedmodels==0.7.4
-albumentations==0.4.6
+#albumentations==0.4.6
 numpy==1.21.6
 #opencv-contrib-python==4.11.0.86
 #opencv-python==4.11.0.86
