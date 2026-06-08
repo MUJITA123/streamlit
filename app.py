@@ -299,14 +299,13 @@ if st.session_state.page == "Introduction":
                     <div class="centered-content">
                         <img src="data:image/jpeg;base64,{encoded_string}" width="800" style="display: block; margin: 0 auto;">
                         <p style="font-size: 22px; margin-top: 10px; text-align: center;">
-                            <strong>Development of an Automated Morphometric Approach to Assess Vascular Outcomes</strong><br>
-                            <strong>following Exposure to Environmental Chemicals in Zebrafish</strong><br>
-                            <a href="https://doi.org/10.1289/EHP13214
+
         
         
         
-        " target="_blank" style="font-size: 16px; text-decoration: underline; text-align: center; display: block;">文章地址：https://doi.org/10.1289/EHP13214</a>
-                        </p>
+        <strong>Citation：
+        Zhong X, Chen J, Zhang Z, Zhu Q, Ji D, Ke W, Niu C, Wang C, Zhao N, Chen W, Jia K, Liu Q, Song M, Liu C, Wei Y.Development of an Automated Morphometric Approach to 
+        <strong> Assess Vascular Outcomes following Exposure to Environmental Chemicals in Zebrafish.Environ Health Perspect.2024 May;132(5):57001.doi: 10.1289/EHP13214.</p>
                     </div>
                     """,
             unsafe_allow_html=True
