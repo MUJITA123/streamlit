@@ -324,15 +324,15 @@ elif st.session_state.page == "Model Segmentation":
     st.write("## 斑马鱼血管分析")
 
     # 选择模型权重
-    selected_weights = st.multiselect("选择血管区域", WEIGHTS_LIST, default=["CCV"])
+    selected_weights = st.multiselect("1.选择血管区域", WEIGHTS_LIST, default=["CCV"])
 
     # 选择示例图像
     demo_images = glob.glob("images/*.bmp")
     demo_image_options = ["None"] + [os.path.basename(img) for img in demo_images]
-    selected_demo_image = st.selectbox("选择示例图片", demo_image_options, index=0)
+    selected_demo_image = st.selectbox("2.选择示例图片", demo_image_options, index=0)
 
     # 上传图片
-    uploaded_files = st.file_uploader("上传图片", type=["jpg", "png", "bmp"], accept_multiple_files=True)
+    uploaded_files = st.file_uploader("3.上传您的图片", type=["jpg", "png", "bmp"], accept_multiple_files=True)
 
     # 删除结果按钮
     if st.button("删除结果"):
