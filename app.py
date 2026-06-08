@@ -8,7 +8,7 @@ from PIL import Image
 import glob
 import io
 import zipfile
-from tools import *  # Assuming this includes get_largest_contour, make_mask_by_contours, extract_contour_rect
+from tools import *  
 
 import base64
 from seg_all import seg_function_all
