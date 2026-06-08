@@ -97,10 +97,10 @@ WEIGHTS_FILES = {
     "SIV": "weights/SIV_best_model_1024_416_cpu.pth"
 }
 WEIGHTS_URLS = {
-    "CCV": "https://github.com/MUJITA123/streamlit/releases/download/v1.0-weights/CCV_best_model_1024_416_cpu.pth",
-    "CVP": "https://github.com/MUJITA123/streamlit/releases/download/v1.0-weights/CV2_best_model_1024_416_cpu.pth",
-    "ISV": "https://github.com/MUJITA123/streamlit/releases/download/v1.0-weights/ISV_best_model_1024_416_cpu.pth",
-    "SIV": "https://github.com/MUJITA123/streamlit/releases/download/v1.0-weights/SIV_best_model_1024_416_cpu.pth",
+    "CCV": "https://github.com/MUJITA123/streamlit/releases/download/model/CCV_best_model_1024_416_cpu.pth",
+    "CVP": "https://github.com/MUJITA123/streamlit/releases/download/model/CV2_best_model_1024_416_cpu.pth",
+    "ISV": "https://github.com/MUJITA123/streamlit/releases/download/model/ISV_best_model_1024_416_cpu.pth",
+    "SIV": "https://github.com/MUJITA123/streamlit/releases/download/model/SIV_best_model_1024_416_cpu.pth"
 }
 
 def ensure_weight_file(weight):
