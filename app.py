@@ -15,7 +15,7 @@ from seg_all import seg_function_all
 import pandas as pd
 from pathlib import Path
 import urllib.request
-# 设置页面配置（必须放在最前面）
+# 设置页面配置
 st.set_page_config(page_title="Zebrafish AI", layout="wide")
 
 # 自定义 CSS 设置背景颜色、导航文字样式和侧边栏收缩功能
